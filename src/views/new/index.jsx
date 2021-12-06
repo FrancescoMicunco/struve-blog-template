@@ -1,157 +1,227 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import { Container, Form, Button } from "react-bootstrap";
-import {useState} from "react"
-
+import { useNavigate } from "react-dom";
 import "./styles.css";
 
- const NewBlogPost =(props)=> {
-   const [state, setState] = useState("");
+const NewBlogPost = () => {
+  const [title, setTitle] = useState("");
+  const [cover, setCover] = useState(null);
+  const [authorName, setAuthorName] = useState("");
+  const [authorAvatar, setAuthorAvatar] = useState(null);
+  const [category, setCategory] = useState("Action");
+  const [content, setContent] = useState("");
 
-   const [form, setForm] = useState(null);
+  const navigate = useNavigate();
 
-  
-   //  ==========  fetch function ========
-   // ==================   GET    ====================
-
-   const getData = async () => {
-     try {
-       const res = await fetch("http://localhost:3001/posts");
-       if (res.ok) {
-         const posts = await res.json();
-         console.log(posts);
-       } else {
-         console.log("ther is an error fetching data");
-       }
-     } catch (error) {
-       console.log("System unavailable");
-     }
-   };
-
-   //  ==========  fetch function ========
-   // ==================   POST    ====================
-const formToSend = {"title":"Arold", "category":"number1", "content":"this is the first post action"}
-  const postData = async (form) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newPost = {
+      category,
+      title,
+      cover,
+      author: {
+        name: authorName,
+      }
+    };
     try {
-      const res = await fetch("http://localhost:3001/posts", {
-        method:'POST',
-        mode:'cors',
-        headers:{'Content-type':'application/json'},
-        body:JSON.stringify(form)
-
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/blogs`, {
+        method: "POST",
+        body: JSON.stringify(newPost),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      if (res.ok) {
-        alert("new post created!");
+      if (response.ok) {
+        const data = await response.json();
+        handleBlogCoverUploads(data);
       } else {
-        console.log("ther is an error posting data");
+        console.error("POST failed");
       }
     } catch (error) {
-      console.log("System unavailable");
+      console.error(error);
     }
   };
 
+  const handleBlogCoverUploads = async (data) => {
+    const formData = new FormData();
+    formData.append("cover", cover);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BE_URL}/blogs/${data.id}/uploadCover`,
+        {
+          method: "PATCH",
+          body: formData,
+        }
+      );
+      if (response.ok) {
+        if (authorAvatar) {
+          checkIfAvatarExists(data);
+        } else {
+          navigate("/");
+        }
+      } else {
+        console.log("PATCH Failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-   // ========== end fetch =====================
-   // =========================================
-  
-    
-    return (
-     <Container className="new-blog-container">
-       <Form className="mt-5" onsubmit="postData(formToSend)">
-         <Form.Group controlId="blog-form" className="mt-3">
-           <Form.Label>Title</Form.Label>
-           <Form.Control size="lg" placeholder="Title" />
-         </Form.Group>
-         <Form.Group controlId="blog-category" className="mt-3">
-           <Form.Label>Category</Form.Label>
-           <Form.Control size="lg" as="select">
-             <option>Category1</option>
-             <option>Category2</option>
-             <option>Category3</option>
-             <option>Category4</option>
-             <option>Category5</option>
-           </Form.Control>
-         </Form.Group>
-         <Form.Group controlId="blog-content" className="mt-3">
-           <Form.Label>Blog Content</Form.Label>
-           <ReactQuill
-             value={state.text}
-            //  onChange={handleChange}
-             className="new-blog-content"
-           />
-         </Form.Group>
-         <Form.Group className="d-flex mt-3 justify-content-end">
-           <Button type="reset" size="lg" variant="outline-dark">
-             Reset
-           </Button>
-           <Button
-             type="submit"
-             size="lg"
-             variant="dark"
-             style={{ marginLeft: "1em" }}
-           >
-             Submit
-           </Button>
-         </Form.Group>
-       </Form>
-     </Container>
-   );
- }
+  const checkIfAvatarExists = async (data) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/authors`);
+      if (response.ok) {
+        const authors = await response.json();
+        const author = authors.find(
+          (author) => data.author.name === `${author.name} ${author.surname}`
+        );
+        if (author) {
+          handleAuthorAvatarUpload(author);
+        } else {
+          createNewAvatar(data);
+        }
+      } else {
+        console.error("Fetch Failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const createNewAvatar = async (data) => {
+    console.log(data);
+    console.log(data.author);
+    console.log(data.author.name);
+    const names = data.author.name.split(" ");
+    const name = names[0];
+    const surname = names[1];
+    const newAuthor = {
+      name,
+      surname,
+    };
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/authors`, {
+        method: "POST",
+        body: JSON.stringify(newAuthor),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const author = await response.json();
+        handleAuthorAvatarUpload(author);
+      } else {
+        console.error("Creating user Failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAuthorAvatarUpload = async (author) => {
+    const formData = new FormData();
+    formData.append("avatar", authorAvatar);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BE_URL}/authors/${author.id}/uploadAvatar`,
+        {
+          method: "PATCH",
+          body: formData,
+        }
+      );
+      if (response.ok) {
+        navigate("/");
+      } else {
+        console.error("POST AVATR Failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <Container className="new-blog-container">
+      <Form className="mt-5" onSubmit={handleSubmit}>
+        <Form.Group controlId="blog-form" className="mt-3">
+          <Form.Label>Title</Form.Label>
+          <Form.Control
+            size="lg"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="blog-form" className="mt-3">
+          <Form.Label>Cover Image</Form.Label>
+          <Form.Control
+            type="file"
+            size="lg"
+            onChange={(e) => setCover(e.target.files[0])}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="blog-form" className="mt-3">
+          <Form.Label>Author Name</Form.Label>
+          <Form.Control
+            size="lg"
+            placeholder="Author Name"
+            value={authorName}
+            onChange={(e) => setAuthorName(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="blog-form" className="mt-3">
+          <Form.Label>Author Avatar (Optional)</Form.Label>
+          <Form.Control
+            type="file"
+            size="lg"
+            onChange={(e) => setAuthorAvatar(e.target.files[0])}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="blog-category" className="mt-3">
+          <Form.Label>Category</Form.Label>
+          <Form.Control
+            size="lg"
+            as="select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option>Action</option>
+            <option>Comedy</option>
+            <option>Horror</option>
+            <option>Romance</option>
+          </Form.Control>
+        </Form.Group>
+
+        <Form.Group controlId="blog-content" className="mt-3">
+          <Form.Label>Blog Content</Form.Label>
+          <ReactQuill
+            value={content}
+            onChange={(html) => setContent(html)}
+            className="new-blog-content"
+          />
+        </Form.Group>
+
+        <Form.Group className="d-flex mt-3 justify-content-end">
+          <Button type="reset" size="lg" variant="outline-dark">
+            Reset
+          </Button>
+          <Button
+            type="submit"
+            size="lg"
+            variant="dark"
+            style={{ marginLeft: "1em" }}
+          >
+            Submit
+          </Button>
+        </Form.Group>
+      </Form>
+    </Container>
+  );
+};
 
 export default NewBlogPost;
-// export default class NewBlogPost extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = { text: "" };
-//     this.handleChange = this.handleChange.bind(this);
-//   }
-
-//   handleChange(value) {
-//     this.setState({ text: value });
-//   }
-
-//   render() {
-//     return (
-//       <Container className="new-blog-container">
-//         <Form className="mt-5">
-//           <Form.Group controlId="blog-form" className="mt-3">
-//             <Form.Label>Title</Form.Label>
-//             <Form.Control size="lg" placeholder="Title" />
-//           </Form.Group>
-//           <Form.Group controlId="blog-category" className="mt-3">
-//             <Form.Label>Category</Form.Label>
-//             <Form.Control size="lg" as="select">
-//               <option>Category1</option>
-//               <option>Category2</option>
-//               <option>Category3</option>
-//               <option>Category4</option>
-//               <option>Category5</option>
-//             </Form.Control>
-//           </Form.Group>
-//           <Form.Group controlId="blog-content" className="mt-3">
-//             <Form.Label>Blog Content</Form.Label>
-//             <ReactQuill
-//               value={this.state.text}
-//               onChange={this.handleChange}
-//               className="new-blog-content"
-//             />
-//           </Form.Group>
-//           <Form.Group className="d-flex mt-3 justify-content-end">
-//             <Button type="reset" size="lg" variant="outline-dark">
-//               Reset
-//             </Button>
-//             <Button
-//               type="submit"
-//               size="lg"
-//               variant="dark"
-//               style={{ marginLeft: "1em" }}
-//             >
-//               Submit
-//             </Button>
-//           </Form.Group>
-//         </Form>
-//       </Container>
-//     );
-//   }
-// }
