@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import { Container, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import "./styles.css";
 
 const NewBlogPost = () => {
