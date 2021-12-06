@@ -91,9 +91,6 @@ const NewBlogPost = () => {
   };
 
   const createNewAvatar = async (data) => {
-    console.log(data);
-    console.log(data.author);
-    console.log(data.author.name);
     const names = data.author.name.split(" ");
     const name = names[0];
     const surname = names[1];
