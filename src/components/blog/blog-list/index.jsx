@@ -7,7 +7,7 @@ const BlogList = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BE_URL}/blogs`);
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/posts`);
       if (response.ok) {
         const data = await response.json();
         setBlogs(data);
