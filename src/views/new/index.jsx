@@ -35,7 +35,7 @@ const NewBlogPost = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        BlogCoverUploads(data);
+        coverUploads(data);
       } else {
         console.error("POST failed");
       }
@@ -44,7 +44,7 @@ const NewBlogPost = () => {
     }
   };
 
-  const BlogCoverUploads = async (data) => {
+  const coverUploads = async (data) => {
     const formData = new FormData();
     formData.append("cover", cover);
     try {
@@ -108,7 +108,7 @@ const NewBlogPost = () => {
       });
       if (response.ok) {
         const author = await response.json();
-        AuthorAvatarUpload(author);
+        avatarUpload(author);
       } else {
         console.error("Creating user Failed");
       }
@@ -116,7 +116,7 @@ const NewBlogPost = () => {
       console.error(error);
     }
   };
-  const AuthorAvatarUpload = async (author) => {
+  const avatarUpload = async (author) => {
     const formData = new FormData();
     formData.append("avatar", authorAvatar);
     try {
