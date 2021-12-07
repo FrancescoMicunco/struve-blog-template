@@ -26,7 +26,7 @@ const NewBlogPost = () => {
       }
     };
     try {
-      const response = await fetch(`${process.env.REACT_APP_BE_URL}/blogs`, {
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/posts`, {
         method: "POST",
         body: JSON.stringify(newPost),
         headers: {
@@ -35,7 +35,7 @@ const NewBlogPost = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        handleBlogCoverUploads(data);
+        BlogCoverUploads(data);
       } else {
         console.error("POST failed");
       }
@@ -44,12 +44,12 @@ const NewBlogPost = () => {
     }
   };
 
-  const handleBlogCoverUploads = async (data) => {
+  const BlogCoverUploads = async (data) => {
     const formData = new FormData();
     formData.append("cover", cover);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BE_URL}/blogs/${data.id}/uploadCover`,
+        `${process.env.REACT_APP_BE_URL}/posts/${data.id}/uploadCover`,
         {
           method: "PATCH",
           body: formData,
@@ -57,7 +57,7 @@ const NewBlogPost = () => {
       );
       if (response.ok) {
         if (authorAvatar) {
-          avatarExists(data);
+          avatarTrue(data);
         } else {
           navigate("/");
         }
@@ -69,9 +69,9 @@ const NewBlogPost = () => {
     }
   };
 
-  const avatarExists = async (data) => {
+  const avatarTrue = async (data) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BE_URL}/authors`);
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/users`);
       if (response.ok) {
         const authors = await response.json();
         const author = authors.find(
@@ -99,7 +99,7 @@ const NewBlogPost = () => {
       surname,
     };
     try {
-      const response = await fetch(`${process.env.REACT_APP_BE_URL}/authors`, {
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/users`, {
         method: "POST",
         body: JSON.stringify(newAuthor),
         headers: {
@@ -108,7 +108,7 @@ const NewBlogPost = () => {
       });
       if (response.ok) {
         const author = await response.json();
-        handleAuthorAvatarUpload(author);
+        AuthorAvatarUpload(author);
       } else {
         console.error("Creating user Failed");
       }
@@ -116,13 +116,12 @@ const NewBlogPost = () => {
       console.error(error);
     }
   };
-
-  const handleAuthorAvatarUpload = async (author) => {
+  const AuthorAvatarUpload = async (author) => {
     const formData = new FormData();
     formData.append("avatar", authorAvatar);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BE_URL}/authors/${author.id}/uploadAvatar`,
+        `${process.env.REACT_APP_BE_URL}/users/${author.id}/uploadAvatar`,
         {
           method: "PATCH",
           body: formData,
