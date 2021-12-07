@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import { Container, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-dom";
 import "./styles.css";
 
 const NewBlogPost = () => {
@@ -57,7 +57,7 @@ const NewBlogPost = () => {
       );
       if (response.ok) {
         if (authorAvatar) {
-          checkIfAvatarExists(data);
+          avatarExists(data);
         } else {
           navigate("/");
         }
@@ -69,7 +69,7 @@ const NewBlogPost = () => {
     }
   };
 
-  const checkIfAvatarExists = async (data) => {
+  const avatarExists = async (data) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BE_URL}/authors`);
       if (response.ok) {
@@ -150,7 +150,6 @@ const NewBlogPost = () => {
             onChange={(e) => setTitle(e.target.value)}
           />
         </Form.Group>
-
         <Form.Group controlId="blog-form" className="mt-3">
           <Form.Label>Cover Image</Form.Label>
           <Form.Control
@@ -159,7 +158,6 @@ const NewBlogPost = () => {
             onChange={(e) => setCover(e.target.files[0])}
           />
         </Form.Group>
-
         <Form.Group controlId="blog-form" className="mt-3">
           <Form.Label>Author Name</Form.Label>
           <Form.Control
