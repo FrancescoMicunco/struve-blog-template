@@ -8,7 +8,7 @@ const BlogItem =(props)=> {
   
     const { title, cover, author, id } = props;
     return (
-      <Link to={`/blog/${id}`} className="blog-link">
+      <Link to={`/posts/${id}`} className="blog-link">
         <Card className="blog-card">
           <Card.Img variant="top" src={cover} className="blog-cover"/>
           <Card.Body>

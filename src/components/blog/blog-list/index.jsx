@@ -3,14 +3,15 @@ import BlogItem from "../blog-item";
 import React, { useEffect, useState } from "react";
 
 const BlogList = () => {
-  const [blogs, setBlogs] = useState([]);
+  const [posts, setPosts] = useState([]);
 
-  const fetchBlogs = async () => {
+  const fetchPosts = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BE_URL}/posts`);
       if (response.ok) {
         const data = await response.json();
-        setBlogs(data);
+        console.log(data)
+        setPosts(data);
       } else {
         console.error("Fetch Failed");
       }
@@ -20,14 +21,14 @@ const BlogList = () => {
   };
 
   useEffect(() => {
-    fetchBlogs();
+    fetchPosts();
   }, []);
 
   return (
     <Row>
-      {blogs.map((blog) => (
+      {posts.map((p) => (
         <Col md={4} style={{ marginBottom: 50 }}>
-          <BlogItem key={blog.id} {...blog} />
+          <BlogItem key={p.id} {...p} />
         </Col>
       ))}
     </Row>
