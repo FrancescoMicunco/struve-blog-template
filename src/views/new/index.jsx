@@ -78,7 +78,7 @@ const NewBlogPost = () => {
           (author) => data.author.name === `${author.name} ${author.surname}`
         );
         if (author) {
-          handleAuthorAvatarUpload(author);
+          avatarUpload(author);
         } else {
           createNewAvatar(data);
         }
