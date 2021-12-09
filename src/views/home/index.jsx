@@ -1,15 +1,16 @@
 import React, { Component } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import BlogList from "../../components/blog/blog-list";
 import "./styles.css";
 
-export default class Home extends Component {
-  render() {
+const Home =()=>{
     return (
-      <Container fluid="sm">
-        <h1 className="blog-main-title">Welcome to the Strive Blog!</h1>
+      <Container fluid="sm" style={{marginTop:80}}>
+        <Row>
+        <h1 className="blog-main-title mt-5">Welcome to the Strive Blog!</h1>
         <BlogList />
+        </Row>
       </Container>
     );
   }
-}
+export default Home

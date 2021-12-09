@@ -26,7 +26,7 @@ const NewBlogPost = () => {
       }
     };
     try {
-      const response = await fetch(`${process.env.REACT_APP_BE_URL}/posts`, {
+      const response = await fetch(`${process.env.REACT_APP_BE_URL}/posts` || `http://localhost:3001/posts`, {
         method: "POST",
         body: JSON.stringify(newPost),
         headers: {
